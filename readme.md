@@ -17,6 +17,17 @@ venv\Scripts\activate
 source venv/bin/activate
 ```
 
+### 3、安装依赖
+```shell
+pip install numpy
+pip install openpyxl
+pip install pandas
+pip install XlsxWriter
+pip install requests
+pip install playwright
+
+```
+
 ### 2、安装依赖
 ```shell
 pip install -r requirements.txt
