@@ -1,6 +1,22 @@
+import os.path
+
 import openpyxl
 
+from file_reader import FileReader
+
+output_dir = 'output'
+
+def init_env():
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
+
+
+def get_file_path(file_name):
+    return os.path.join(output_dir, file_name)
+
 if __name__ == '__main__':
+    init_env()
+
     # 打开 Excel 文件
     workbook = openpyxl.load_workbook("data/销售明细.xlsx")
 
@@ -14,5 +30,8 @@ if __name__ == '__main__':
     new_workbook = openpyxl.Workbook()
     new_sheet = new_workbook.active
     new_sheet["A1"] = "Hello, World!"
-    
-    new_workbook.save("新文件地址.xlsx")
+
+    new_workbook.save(get_file_path("新文件地址.xlsx"))
+
+    reader = FileReader("/Users/snlan/py_path/report-tools/data")
+    reader.read()
