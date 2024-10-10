@@ -1,10 +1,12 @@
 import os.path
+import time
 
 import openpyxl
 
 from file_reader import FileReader
 
 output_dir = 'output'
+
 
 def init_env():
     if not os.path.exists(output_dir):
@@ -13,6 +15,12 @@ def init_env():
 
 def get_file_path(file_name):
     return os.path.join(output_dir, file_name)
+
+
+# 获取时间字符串
+def get_time():
+    return time.strftime("%Y-%m-%d %H：%M", time.localtime())
+
 
 if __name__ == '__main__':
     init_env()
@@ -31,7 +39,7 @@ if __name__ == '__main__':
     new_sheet = new_workbook.active
     new_sheet["A1"] = "Hello, World!"
 
-    new_workbook.save(get_file_path("新文件地址.xlsx"))
+    new_workbook.save(get_file_path("新文件地址_{}.xlsx".format(get_time())))
 
     reader = FileReader("/Users/snlan/py_path/report-tools/data")
     reader.read()
