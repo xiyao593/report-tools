@@ -7,17 +7,16 @@ import openpyxl
 import config
 from file_reader import FileReader
 from translation import TransactionRecord
-
-output_dir = 'output'
+from openpyxl.styles import Font, PatternFill
 
 
 def init_env():
-    if not os.path.exists(output_dir):
-        os.mkdir(output_dir)
+    if not os.path.exists(config.output_dir):
+        os.mkdir(config.output_dir)
 
 
 def get_file_path(file_name):
-    return os.path.join(output_dir, file_name)
+    return os.path.join(config.output_dir, file_name)
 
 
 # 获取时间字符串
@@ -114,8 +113,25 @@ def write_xlsx(translation_records: List[TransactionRecord]):
         ]
         ws.append(row)
 
+    set_style(ws)
+
     wb.save(get_file_path("汇总表_{}.xlsx".format(get_time())))
     wb.close()
+
+
+def set_style(ws):
+    # 设置字体样式
+    font_style_header = Font(name='微软雅黑', size=12, bold=True)  # 第一行字体，12号加粗
+    font_style_content = Font(name='微软雅黑', size=12)  # 其余内容字体，12号
+    fill_yellow = PatternFill(fill_type='solid', start_color='FFFF00', end_color='FFFF00')  # 黄色背景
+
+    for cell in ws[1]:  # 第一行的单元格
+        cell.font = font_style_header
+        cell.fill = fill_yellow
+
+    for row in ws.iter_rows(min_row=2, max_row=ws.max_row, max_col=len(TransactionRecord.field_list)):
+        for cell in row:
+            cell.font = font_style_content  # 设置内容的字体样式
 
 
 if __name__ == '__main__':
