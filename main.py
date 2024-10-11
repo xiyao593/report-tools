@@ -1,10 +1,12 @@
 import os.path
 import time
+from typing import List
 
 import openpyxl
 
 import config
 from file_reader import FileReader
+from translation import TransactionRecord
 
 output_dir = 'output'
 
@@ -53,7 +55,6 @@ def is_subset(list1, list2):
 def get_bank_translation_records(execl_file, tx_class):
     workbook = openpyxl.load_workbook(execl_file)
 
-
     try:
         sheet = workbook.active
 
@@ -79,6 +80,7 @@ def get_bank_translation_records(execl_file, tx_class):
     finally:
         workbook.close()
 
+
 def read_row(row):
     row_number = 0
     column_count = 0
@@ -92,14 +94,42 @@ def read_row(row):
     return row_number, column_count, values, values.__getitem__(0) is not None
 
 
+def write_xlsx(translation_records: List[TransactionRecord]):
+    if len(translation_records) == 0:
+        return
+
+    # 创建一个新的工作簿
+    wb = openpyxl.Workbook()
+    ws = wb.active
+
+    # 将字段写入第一行
+    ws.append(TransactionRecord.field_list)
+
+    for tr in translation_records:
+        row = [
+            tr.date, tr.original_currency_amount, tr.rmb_amount, tr.currency,
+            tr.description, tr.payer, tr.payee, tr.revenue_or_expense,
+            tr.business_entity, tr.purpose, tr.business_type, tr.posting_status,
+            tr.remarks
+        ]
+        ws.append(row)
+
+    wb.save(get_file_path("汇总表_{}.xlsx".format(get_time())))
+    wb.close()
+
+
 if __name__ == '__main__':
     init_env()
 
     reader = FileReader("/Users/snlan/py_path/report-tools/data")
     files = reader.read()
 
+    all_tx = []
     for file in files:
         tx_clazz = get_bank_translation(file)
         if tx_clazz is not None:
             txs = get_bank_translation_records(file, tx_clazz)
-            print(txs)
+            for tx in txs:
+                all_tx.append(tx.convert())
+
+    write_xlsx(all_tx)
