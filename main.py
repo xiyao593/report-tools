@@ -26,7 +26,7 @@ def get_time():
 
 # 先识别是那个银行的交易流水
 def get_bank_translation(file):
-    print("start recognition translation type:", file)
+    print("开始识别交易类型:", file)
     # 打开 Excel 文件
     workbook = openpyxl.load_workbook(file)
 
@@ -113,7 +113,7 @@ def write_xlsx(translation_records: List[TransactionRecord]):
         ]
         ws.append(row)
 
-    set_style(ws)
+    # set_style(ws)
 
     wb.save(get_file_path("汇总表_{}.xlsx".format(get_time())))
     wb.close()
@@ -137,11 +137,12 @@ def set_style(ws):
 if __name__ == '__main__':
     init_env()
 
-    reader = FileReader("/Users/snlan/py_path/report-tools/data")
+    reader = FileReader(config.data_source_path)
     files = reader.read()
 
     all_tx = []
     for file in files:
+        print("文件路径:", file)
         tx_clazz = get_bank_translation(file)
         if tx_clazz is not None:
             txs = get_bank_translation_records(file, tx_clazz)

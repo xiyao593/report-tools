@@ -4,12 +4,15 @@ from datetime import datetime
 
 class CMBTransaction:
     field_list = ['账号', '账号名称', '币种', '交易日', '交易时间', '起息日', '交易类型', '借方金额', '贷方金额',
-                  '余额', '摘要', '流水号', '流程实例号', '业务名称', '用途', '业务参考号', '业务摘要']
+                  '余额', '摘要', '流水号', '流程实例号', '业务名称', '用途', '业务参考号', '业务摘要', '其它摘要',
+                  '收(付)方分行名', '收(付)方名称'
+                  ]
 
     def __init__(self, account_number, account_name, currency_type, transaction_date,
                  transaction_time, value_date, transaction_type, debit_amount,
                  credit_amount, balance, summary, serial_number, process_instance_number,
-                 business_name, purpose, business_reference_number, business_summary):
+                 business_name, purpose, business_reference_number, business_summary, other_summary, shoufu_bank,
+                 shoufu_name):
         # 账号
         self.account_number = account_number
 
@@ -61,24 +64,51 @@ class CMBTransaction:
         # 业务摘要
         self.business_summary = business_summary
 
-    def __repr__(self):
-        return f"Transaction(account_number={self.account_number}, account_name={self.account_name}, currency_type={self.currency_type}, transaction_date={self.transaction_date}, transaction_time={self.transaction_time}, value_date={self.value_date}, transaction_type={self.transaction_type}, debit_amount={self.debit_amount}, credit_amount={self.credit_amount}, balance={self.balance}, summary={self.summary}, serial_number={self.serial_number}, process_instance_number={self.process_instance_number}, business_name={self.business_name}, purpose={self.purpose}, business_reference_number={self.business_reference_number}, business_summary={self.business_summary})"
+        # 其它摘要
+        self.other_summary = other_summary
 
+        # 收(付)方分行名
+        self.shoufu_bank = shoufu_bank
+
+        # 收(付)方名称
+        self.shoufu_name = shoufu_name
+
+    def __repr__(self):
+        return f"Transaction(account_number={self.account_number}, account_name={self.account_name}, currency_type={self.currency_type}, transaction_date={self.transaction_date}, transaction_time={self.transaction_time}, value_date={self.value_date}, transaction_type={self.transaction_type}, debit_amount={self.debit_amount}, credit_amount={self.credit_amount}, balance={self.balance}, summary={self.summary}, serial_number={self.serial_number}, process_instance_number={self.process_instance_number}, business_name={self.business_name}, purpose={self.purpose}, business_reference_number={self.business_reference_number}, business_summary={self.business_summary}, shoufu_name={self.shoufu_name})"
 
     def convert(self):
-        return TransactionRecord(date=self.transaction_date,
-                                 original_currency_amount=self.balance,
-                                 rmb_amount=self.balance,
-                                 currency='CNY',
-                                 description=self.summary,
-                                 payer=None,
-                                 payee=None,
-                                 revenue_or_expense=True,
-                                 business_entity=None,
-                                 purpose=None,
-                                 business_type=None,
-                                 posting_status=None,
-                                 remarks=None)
+        date = self.transaction_date
+        original_currency_amount = self.balance
+        rmb_amount = self.balance
+        currency = 'CNY'
+        description = self.summary
+        payer = None
+        payee = None
+        revenue_or_expense = True
+        business_entity = None
+        purpose = None
+        business_type = None
+        posting_status = None
+        remarks = None
+
+        if "HUAWEI SERVICES (HONG KONG) CO" in self.shoufu_name:
+            description = '华为结算款'
+
+
+        return TransactionRecord(date=date,
+                                 original_currency_amount=original_currency_amount,
+                                 rmb_amount=rmb_amount,
+                                 currency=currency,
+                                 description=description,
+                                 payer=payer,
+                                 payee=payee,
+                                 revenue_or_expense=revenue_or_expense,
+                                 business_entity=business_entity,
+                                 purpose=purpose,
+                                 business_type=business_type,
+                                 posting_status=posting_status,
+                                 remarks=remarks)
+
 
 # 汇总交易记录
 class TransactionRecord:
